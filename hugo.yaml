@@ -2,3 +2,6 @@ baseURL: 'https://junwenkwan.github.io/'
 languageCode: 'en-us'
 title: "Jun Kwan's Blog"
 theme: 'papermod'
+caches:
+  images:
+    dir: :cacheDir/images
