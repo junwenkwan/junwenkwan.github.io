@@ -1,11 +1,19 @@
 baseURL: 'https://junwenkwan.github.io/'
 languageCode: 'en-us'
-title: "My Blog"
+title: "Jun Kwan"
 theme: 'papermod'
 caches:
   images:
     dir: :cacheDir/images
 params:
   homeInfoParams:
-    Title: "Hi, I'm Jun Kwan 👋"
+    Title: "Hello 👋"
     Content: "Welcome to my blog, where I share my learnings in machine learning, robotics, and cloud computing!"
+menu:
+  main:
+    - name: "Home"
+      url: "/"
+      weight: 1
+    - name: "About"
+      url: "/about/"
+      weight: 2
