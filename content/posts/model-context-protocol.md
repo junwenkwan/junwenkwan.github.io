@@ -1,5 +1,5 @@
 +++
-date = '2025-05-29'
+date = '2025-06-04'
 draft = false
 title = 'Model Context Protocol'
 +++
@@ -12,6 +12,8 @@ In MCP architecture, there are several components involved, such as:
 - MCP Host: LLM applications to access data through MCP, such as Claude Desktop
 - MCP Clients: Inside a host, always maintain a 1:1 connection with MCP servers
 - MCP Servers: Lightweight programs to expose capabilities
+
+![MCP Architecture](/mcp_architecture.svg)
 
 In this example, I will use Github Copilot as the host, and I will connect the host to my own MCP server. I will also create a MCP server with `FastMCP` which is the Python MCP SDK. Remember, the client's job is to discover custom tools, while the server's job is to expose relevant tools to the client. With this Python MCP SDK, it is easy to define a MCP tool, please see code snippet below.
 
@@ -31,8 +33,12 @@ def add(a: int, b: int) -> int:
 Let's now look at a more complicated example. I will allow Github Copilot agent to query and format the data obtained from National Oceanic and Atmospheric Administration (NOAA) to get the latest Aurora Kp index.
 
 ```python
-async def fetch_kp_index() -> float | None:
-    """Fetch the latest Kp index value from NOAA."""
+async def fetch_kp_index() -> dict | None:
+    """
+    Fetch the latest kp index from NOAA.
+    Returns:
+        A json containing kp index.
+    """
     headers = {
         "User-Agent": "AuroraMCP/1.0",
         "Accept": "application/geo+json"
@@ -49,7 +55,13 @@ async def fetch_kp_index() -> float | None:
             return None
 
 def format_kp_index(feature: dict) -> str:
-    """Format aurora kp index into a readable string."""
+    """
+    Format aurora kp index into a readable string.
+    Args:
+        feature: JSON containing Aurora kp index.
+    Returns:
+        Formatted string.
+    """
     return f"""previous_time_tag: {feature[-2].get('time_tag', 'Unknown')}
 previous_kp_index: {feature[-2].get('kp_index', 'Unknown')}
 previous_estimated_kp: {feature[-2].get('estimated_kp', 'Unknown')}
@@ -60,12 +72,16 @@ current_estimated_kp: {feature[-1].get('estimated_kp', 'Unknown')}
 current_kp: {feature[-1].get('kp', 'Unknown')}"""
 ```
 
-And then the tool can be wrapped with Python MCP SDK.
+And then the tool can be wrapped with the `@mcp.tool()` decorator.
 
 ```python
 @mcp.tool()
 async def get_aurora_status() -> str:
-    """Get current aurora Kp index."""
+    """
+    A MCP tool to get current aurora Kp index.
+    Returns:
+        Formatted string.
+    """
     kp = await fetch_kp_index()
     if kp is None:
         return "Unable to fetch Kp index."
@@ -73,13 +89,13 @@ async def get_aurora_status() -> str:
     return format_kp_index(kp)
 ```
 
-I will run the MCP server using the following code snippet.
+The MCP server can be started using the following code snippet.
 
 ```python
 if __name__ == "__main__":
     mcp.run(transport="sse")
 ```
 
-Finally, the agent can then discover this tool and get the latest Aurora Kp index from NOAA.
+Finally, the GitHub Copilot agent can then discover this tool and get the latest Aurora Kp index from NOAA!
 
-![MCP Example](/mcp.png)
+![MCP Copilot](/mcp_copilot.png)
