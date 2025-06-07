@@ -2,6 +2,7 @@
 date = '2025-06-04'
 draft = false
 title = 'Model Context Protocol'
+tags = ['llm', 'machine learning']
 +++
 
 Model Context Protocol (MCP) is an open source standard for LLMs to be interacting with applications. MCP is originally introduced by Anthropic [in this post](https://www.anthropic.com/news/model-context-protocol). With MCP, LLMs now can have assess to custom tools or data source to provide a more intelligent response. 
