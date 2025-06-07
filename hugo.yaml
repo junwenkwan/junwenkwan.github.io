@@ -9,6 +9,8 @@ params:
   homeInfoParams:
     Title: "Hello 👋"
     Content: "Welcome to my blog, where I share my learnings in machine learning, robotics, and cloud computing!"
+taxonomies:
+  tag: "tags"
 menu:
   main:
     - name: "Home"
@@ -17,3 +19,6 @@ menu:
     - name: "About"
       url: "/about/"
       weight: 2
+    - name: "Tags"
+      url: "/tags/"
+      weight: 3
