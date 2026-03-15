@@ -6,6 +6,7 @@ caches:
   images:
     dir: :cacheDir/images
 params:
+  author: "Jun Kwan"
   homeInfoParams:
     Title: "Hello 👋"
     Content: "Welcome to my blog, where I share my learnings in machine learning, robotics, and cloud computing!"
