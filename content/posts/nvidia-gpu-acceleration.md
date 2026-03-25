@@ -53,7 +53,7 @@ At this stage both produce CPU-only binaries, the GPU offloading only kicks in w
 
 ## Switching to Standard Algorithms
 
-The raw for-loop works, but it can't be parallelised directly. The key insight behind C++17 execution policies is that parallelism is opted in at the call site by passing a policy tag — the logic itself doesn't change. So the first step is to rewrite the loops using standard algorithms with `std::execution::seq`, keeping identical behaviour:
+The raw for-loop works, but it can't be parallelised directly. The key insight behind C++17 execution policies is that parallelism is opted in at the call site by passing a policy tag but the logic itself doesn't change. So the first step is to rewrite the loops using standard algorithms with `std::execution::seq`, keeping identical behaviour:
 
 ```cpp
 #include <algorithm>
@@ -80,7 +80,7 @@ void daxpy(double a, std::vector<double> const &x, std::vector<double> &y)
 }
 ```
 
-`std::views::iota(0LL)` provides a lazy index range so each iteration writes to a unique element — a prerequisite for safe parallelism. The result is functionally identical to the for-loop, but now structured to accept a different execution policy.
+`std::views::iota(0LL)` provides a lazy index range so each iteration writes to a unique element. The result is functionally identical to the for-loop, but now structured to accept a different execution policy.
 
 ## Offloading to the GPU with `par_unseq`
 
