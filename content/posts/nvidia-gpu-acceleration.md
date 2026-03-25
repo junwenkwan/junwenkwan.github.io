@@ -6,7 +6,7 @@ tags = ['c++']
 math = true
 +++
 
-This post is based on [this self-paced](https://learn.nvidia.com/courses/course-detail?course_id=course-v1:DLI+S-AC-08+V1) course offered by NVIDIA's Deep Learning Institute.
+This post is based on [this self-paced course](https://learn.nvidia.com/courses/course-detail?course_id=course-v1:DLI+S-AC-08+V1) offered by NVIDIA's Deep Learning Institute.
 
 NVIDIA's **stdpar** lets you offload standard C++20 algorithms onto the GPU without CUDA kernels or new syntax. To show how this works in practice, we'll use **DAXPY**, which is a simple but memory-intensive linear algebra operation, and see how a few small code changes take it from a single-threaded CPU loop to full GPU execution.
 
