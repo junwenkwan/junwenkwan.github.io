@@ -29,11 +29,11 @@ body {
 }
 
 .logo a {
-    color: #ff6ec7 !important;
+    color: #ff83d4 !important;
     text-shadow:
-        0 0 8px  #ff6ec7,
-        0 0 25px #ff6ec7,
-        0 0 50px #ff6ec7;
+        0 0 8px  #ff83d4,
+        0 0 25px #ff83d4,
+        0 0 50px #ff83d4;
     animation: flicker 8s infinite;
 }
 
@@ -41,17 +41,17 @@ h1, h2, h3,
 .post-title,
 .entry-header h1,
 .entry-header h2 {
-    color: #ff6ec7 !important;
+    color: #ff83d4 !important;
     text-shadow:
-        0 0 8px  #ff6ec7,
-        0 0 25px #ff6ec7,
-        0 0 50px #ff6ec7;
+        0 0 8px  #ff83d4,
+        0 0 25px #ff83d4,
+        0 0 50px #ff83d4;
 }
 
 @keyframes title-flicker {
-    0%,  91%, 95%, 100% { text-shadow: 0 0 6px #ff6ec7, 0 0 16px #ff6ec7, 0 0 22px #ff6ec7; }
-    92%, 94%             { text-shadow: 0 0 2px #ff6ec740; }
-    93%                  { text-shadow: 0 0 5px #ff6ec7, 0 0 12px #ff6ec7; }
+    0%,  91%, 95%, 100% { text-shadow: 0 0 5px #ff83d4, 0 0 12px #ff83d4, 0 0 16px #ff83d4; }
+    92%, 94%             { text-shadow: 0 0 2px #ff83d440; }
+    93%                  { text-shadow: 0 0 4px #ff83d4, 0 0 9px #ff83d4; }
 }
 
 .home-info h1 {
@@ -78,18 +78,18 @@ h1, h2, h3,
 
 #menu a:hover,
 #menu .active {
-    color: #ff6ec7 !important;
-    text-shadow: 0 0 10px #ff6ec7, 0 0 25px #ff6ec7;
+    color: #ff83d4 !important;
+    text-shadow: 0 0 10px #ff83d4, 0 0 25px #ff83d4;
 }
 
 .post-content a {
-    color: #ff6ec7 !important;
+    color: #ff83d4 !important;
     text-decoration: none;
-    text-shadow: 0 0 6px #ff6ec755;
+    text-shadow: 0 0 6px #ff83d455;
 }
 
 .post-content a:hover {
-    text-shadow: 0 0 10px #ff6ec7, 0 0 20px #ff6ec7;
+    text-shadow: 0 0 10px #ff83d4, 0 0 20px #ff83d4;
 }
 
 .post-entry {
@@ -140,8 +140,8 @@ h1, h2, h3,
 
 .post-content code:not(pre code) {
     background: #1a0040 !important;
-    color: #ff6ec7 !important;
-    text-shadow: 0 0 6px #ff6ec755;
+    color: #ff83d4 !important;
+    text-shadow: 0 0 6px #ff83d455;
     border-radius: 3px;
     padding: 1px 5px;
 }
@@ -159,10 +159,16 @@ h1, h2, h3,
     .entry-header h1,
     .entry-header h2,
     .home-info h1 {
-        text-shadow: 0 0 6px #ff6ec7;
+        text-shadow: 0 0 6px #ff83d4;
     }
 
     #menu a {
         text-shadow: 0 0 5px #e040fb;
+    }
+
+    @keyframes title-flicker {
+        0%,  91%, 95%, 100% { text-shadow: 0 0 4px #ff83d4, 0 0 10px #ff83d4; }
+        92%, 94%             { text-shadow: 0 0 2px #ff83d440; }
+        93%                  { text-shadow: 0 0 3px #ff83d4, 0 0 7px #ff83d4; }
     }
 }
