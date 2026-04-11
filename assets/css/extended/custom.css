@@ -48,12 +48,20 @@ h1, h2, h3,
         0 0 50px #ff6ec7;
 }
 
+@keyframes title-flicker {
+    0%,  91%, 95%, 100% { text-shadow: 0 0 6px #ff6ec7, 0 0 16px #ff6ec7, 0 0 22px #ff6ec7; }
+    92%, 94%             { text-shadow: 0 0 2px #ff6ec740; }
+    93%                  { text-shadow: 0 0 5px #ff6ec7, 0 0 12px #ff6ec7; }
+}
+
 .home-info h1 {
-    text-shadow:
-        0 0 8px  #ff6ec7,
-        0 0 25px #ff6ec7,
-        0 0 50px #ff6ec7;
-    animation: flicker 8s infinite;
+    text-shadow: none;
+    font-size: 44px;
+}
+
+.home-title {
+    display: inline;
+    animation: title-flicker 8s infinite;
 }
 
 .home-info .entry-content {
