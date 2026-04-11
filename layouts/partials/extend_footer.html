@@ -1,0 +1,59 @@
+{{ if .IsHome }}
+<canvas id="matrix-rain" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    opacity: 0.18;
+    pointer-events: none;
+"></canvas>
+<script>
+(function() {
+    var canvas = document.getElementById('matrix-rain');
+    var ctx    = canvas.getContext('2d');
+    var chars  = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ01010110';
+    var colW   = 14;
+    var W, H, cols, drops, timer;
+
+    function init() {
+        if (timer) clearInterval(timer);
+        W = canvas.offsetWidth  || window.innerWidth;
+        H = canvas.offsetHeight || window.innerHeight;
+        canvas.width  = W;
+        canvas.height = H;
+        cols  = Math.floor(W / colW);
+        drops = [];
+        for (var i = 0; i < cols; i++) {
+            drops[i] = Math.random() * -50;
+        }
+        timer = setInterval(draw, 50);
+    }
+
+    function draw() {
+        ctx.fillStyle = 'rgba(6, 0, 16, 0.12)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.font = '12px "Share Tech Mono", monospace';
+
+        for (var i = 0; i < drops.length; i++) {
+            var ch = chars[Math.floor(Math.random() * chars.length)];
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(ch, i * colW, drops[i] * colW);
+
+            ctx.fillStyle = 'rgba(192, 100, 255, 0.85)';
+            ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * colW, (drops[i] - 1) * colW);
+
+            if (drops[i] * colW > H && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i] += 0.5;
+        }
+    }
+
+    init();
+    window.addEventListener('resize', init);
+})();
+</script>
+{{ end }}

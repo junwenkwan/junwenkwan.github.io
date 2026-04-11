@@ -6,9 +6,11 @@ caches:
   images:
     dir: :cacheDir/images
 params:
+  defaultTheme: dark
+  disableThemeToggle: true
   author: "Jun Kwan"
   homeInfoParams:
-    Title: "Hello 👋"
+    Title: "Hello"
     Content: "Welcome to my blog, where I share my learnings in machine learning, robotics, and cloud computing!"
 taxonomies:
   tag: "tags"
