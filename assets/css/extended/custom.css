@@ -22,7 +22,6 @@ body {
     font-size: 18px;
 }
 
-
 @keyframes flicker {
     0%,  91%, 95%, 100% { opacity: 1; }
     92%, 94%             { opacity: 0.8; }
@@ -54,6 +53,7 @@ h1, h2, h3,
         0 0 8px  #ff6ec7,
         0 0 25px #ff6ec7,
         0 0 50px #ff6ec7;
+    animation: flicker 8s infinite;
 }
 
 .home-info .entry-content {
@@ -142,4 +142,19 @@ h1, h2, h3,
     color: #e040fb !important;
     font-size: 11px;
     letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+    .logo a,
+    h1, h2, h3,
+    .post-title,
+    .entry-header h1,
+    .entry-header h2,
+    .home-info h1 {
+        text-shadow: 0 0 6px #ff6ec7;
+    }
+
+    #menu a {
+        text-shadow: 0 0 5px #e040fb;
+    }
 }
