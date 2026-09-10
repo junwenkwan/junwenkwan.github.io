@@ -1,8 +1,7 @@
 ---
 title: "About"
+layout: "about"
 ---
-
-![profile](/profile.jpeg)
 
 Hi, I’m Jun Kwan, and I live in Melbourne, Australia 🇦🇺.
 
