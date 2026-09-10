@@ -22,6 +22,9 @@ menu:
     - name: "About"
       url: "/about/"
       weight: 2
+    - name: "Journal"
+      url: "/posts/"
+      weight: 3
     - name: "Tags"
       url: "/tags/"
-      weight: 3
+      weight: 4
