@@ -1,7 +1,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+{{ if .IsHome }}
+{{ $homeStyle := resources.Get "css/landing.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $homeStyle.RelPermalink }}" integrity="{{ $homeStyle.Data.Integrity }}">
+{{ end }}
 
 {{ if .Params.math }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -15,4 +20,3 @@
   })">
 </script>
 {{ end }}
-

@@ -1,0 +1,25 @@
+{{ define "main" }}
+<div class="workshop-home">
+  <section class="workshop-hero" aria-labelledby="workshop-title">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="status-dot"></span> ML ENGINEER · MELBOURNE</p>
+      <h1 id="workshop-title">Ideas in <em>motion.</em></h1>
+      <p class="hero-description">Machine learning. Robotics. Systems.</p>
+      <div class="hero-actions">
+        <a class="primary-link" href="{{ "posts/" | relURL }}">Journal <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <figure class="clockwork-scene" aria-label="An ornate clockwork astrolabe in a dark fantasy setting">
+      {{ $art := resources.Get "images/clockwork-relic-celestial.png" }}
+      {{ $hero := $art.Resize (printf "%dx webp q95" $art.Width) }}
+      {{ $small := $art.Resize "960x webp q90" }}
+      <div class="clockwork-art">
+        <img class="relic-image" src="{{ $hero.RelPermalink }}" srcset="{{ $small.RelPermalink }} {{ $small.Width }}w, {{ $hero.RelPermalink }} {{ $hero.Width }}w" sizes="(max-width: 760px) 157vw, (max-width: 1376px) 117.75vw, 1570px" width="{{ $hero.Width }}" height="{{ $hero.Height }}" alt="An ornate golden astrolabe with intricate gears, celestial rings, and a radiant amber core against a star-filled nebula." fetchpriority="high">
+        <div class="relic-particles" aria-hidden="true">
+          {{ range seq 1 10 }}<span class="relic-particle"></span>{{ end }}
+        </div>
+      </div>
+    </figure>
+  </section>
+</div>
+{{ end }}
