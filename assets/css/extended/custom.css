@@ -34,7 +34,6 @@ body:not(:has(.workshop-home)) .main { max-width: 920px; padding: 60px 40px 50px
 .post-content strong { color: #e1dfce; }
 .post-content blockquote { border-inline-start: 2px solid #bfa16870; background: #bfa16808; padding: 15px 24px; color: #b4bca9; }
 .post-content img { border: 1px solid var(--border); }
-.post-content img[src$="profile.jpeg"] { width: 176px; height: 176px; object-fit: cover; border-radius: 50%; padding: 6px; border-color: #bda06780; margin: 0 0 30px; }
 .post-content pre, .highlight pre { background: var(--code-block-bg) !important; border: 1px solid var(--border); border-left: 2px solid #b99d63; border-radius: 2px; padding: 20px; line-height: 1.65; }
 .post-content :is(pre,code,kbd,samp), .post-content pre *, .highlight * { font-family: 'IBM Plex Mono', Consolas, monospace; }
 .post-content pre code { font-size: 13px; }
@@ -76,7 +75,6 @@ body:not(:has(.workshop-home)) .main { max-width: 920px; padding: 60px 40px 50px
   .post-content h2 { font-size: 31px; }
   .post-content h3 { font-size: 27px; }
   .post-content pre { padding: 16px; }
-  .post-content img[src$="profile.jpeg"] { width: 148px; height: 148px; }
   .terms-tags { grid-template-columns: 1fr; gap: 14px; }
   .terms-tags a { min-height: 77px; font-size: 17px; }
   .entry-header h2 { font-size: 27px; }
