@@ -9,12 +9,12 @@
         <a class="primary-link" href="{{ "posts/" | relURL }}">Journal <span aria-hidden="true">→</span></a>
       </div>
     </div>
-    <figure class="clockwork-scene" aria-label="An ornate clockwork astrolabe in a dark fantasy setting">
-      {{ $art := resources.Get "images/clockwork-relic-celestial.png" }}
+    <figure class="clockwork-scene" aria-label="A celestial machine surrounding a glowing eclipse">
+      {{ $art := resources.Get "images/eclipse-relic.png" }}
       {{ $hero := $art.Resize (printf "%dx webp q95" $art.Width) }}
       {{ $small := $art.Resize "960x webp q90" }}
       <div class="clockwork-art">
-        <img class="relic-image" src="{{ $hero.RelPermalink }}" srcset="{{ $small.RelPermalink }} {{ $small.Width }}w, {{ $hero.RelPermalink }} {{ $hero.Width }}w" sizes="(max-width: 760px) 157vw, (max-width: 1376px) 117.75vw, 1570px" width="{{ $hero.Width }}" height="{{ $hero.Height }}" alt="An ornate golden astrolabe with intricate gears, celestial rings, and a radiant amber core against a star-filled nebula." fetchpriority="high">
+        <img class="relic-image" src="{{ $hero.RelPermalink }}" srcset="{{ $small.RelPermalink }} {{ $small.Width }}w, {{ $hero.RelPermalink }} {{ $hero.Width }}w" sizes="(max-width: 760px) 120vw, (max-width: 1376px) 90vw, 1200px" width="{{ $hero.Width }}" height="{{ $hero.Height }}" alt="A monumental brass celestial machine with symmetrical spires and suspended stone fragments surrounding a dark moon rimmed in golden light." fetchpriority="high">
         <div class="relic-particles" aria-hidden="true">
           {{ range seq 1 10 }}<span class="relic-particle"></span>{{ end }}
         </div>
