@@ -9,6 +9,6 @@ I work as a Machine Learning Engineer with around six years of experience buildi
 
 Before entering the industry, I studied at Monash University, where I earned a Bachelor of Engineering (Honours) degree in Electrical and Computer Systems Engineering.
 
-Outside of work, I enjoy playing tennis and running. I completed my first full marathon in 2024, which was a challenging but unforgettable experience.
+Outside of work, I enjoy running. I completed my first full marathon in 2024, which was a challenging but unforgettable experience.
 
 This blog is where I share ideas, lessons, and experiments from my journey in tech.

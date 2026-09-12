@@ -4,5 +4,11 @@
     <h1>{{ .Title }}</h1>
   </header>
   <div class="post-content about-content">{{ .Content }}</div>
+  <figure class="about-portrait">
+    <div class="about-photo">
+      <img src="{{ "profile.jpeg" | relURL }}" width="600" height="600" alt="Jun Kwan in Queenstown, New Zealand, with mountains and a lake in the background." loading="lazy" decoding="async">
+    </div>
+    <figcaption>This is me in Queenstown, New Zealand.</figcaption>
+  </figure>
 </article>
 {{ end }}

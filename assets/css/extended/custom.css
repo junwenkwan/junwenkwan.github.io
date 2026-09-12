@@ -87,6 +87,17 @@ body:not(:has(.workshop-home)) .main { max-width: 920px; padding: 60px 40px 50px
 /* About stays in one reading column. */
 body:has(.about-page) .main { max-width: 840px; }
 .about-content { font-size: 16px; line-height: 1.85; }
+.about-content > :last-child { margin-bottom: 0; }
+.about-portrait { width: 600px; max-width: 100%; margin: 40px auto 0; }
+.about-photo { background: var(--theme); mask-image: linear-gradient(0deg, transparent, #000 10%, #000 92%, transparent), linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-composite: intersect; }
+.about-portrait img { display: block; width: 100%; height: auto; }
+.about-portrait figcaption { margin-top: 14px; color: var(--secondary); font-size: 14px; line-height: 1.6; text-align: center; }
+@media (min-width: 761px) and (max-height: 1000px) {
+  body:has(.about-page) .main { padding-block: 32px; }
+  .about-page .page-header { margin-bottom: 25px; padding-bottom: 20px; }
+  .about-content { line-height: 1.75; }
+  .about-content p { margin-bottom: 20px; }
+}
 
 /* Let the layout account for the actual header/footer instead of theme constants. */
 body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
