@@ -13,7 +13,7 @@ const reset = document.querySelector("#reset");
 async function fetchVolumeFile(name) {
   const response = await fetch(new URL(name, import.meta.url));
   if (!response.ok) {
-    throw new Error("Could not load " + name + ". Run uv run export_volume.py first.");
+    throw new Error("Could not load " + name + ".");
   }
   return response;
 }

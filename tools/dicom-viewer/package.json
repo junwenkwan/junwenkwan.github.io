@@ -1,8 +1,0 @@
-{
-  "name": "dicom-volume-viewer",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "three": "0.187.0"
-  }
-}
