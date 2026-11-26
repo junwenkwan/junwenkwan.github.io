@@ -1,0 +1,49 @@
+{{- $source := "tools/dicom-viewer" -}}
+{{- $target := "dicom-volume" -}}
+{{- $files := slice
+  "style.css"
+  "viewer.js"
+  "slices.js"
+  "volume-shader.js"
+  "volume.json"
+  "volume.bin"
+  "node_modules/three/build/three.module.js"
+  "node_modules/three/build/three.core.js"
+  "node_modules/three/examples/jsm/controls/OrbitControls.js"
+  "node_modules/three/LICENSE"
+-}}
+{{- $ready := fileExists (path.Join $source "index.html") -}}
+{{- range $files -}}
+  {{- $ready = and $ready (fileExists (path.Join $source .)) -}}
+{{- end -}}
+{{- if $ready -}}
+{{- range $files -}}
+  {{- $asset := resources.FromString (path.Join $target .) (readFile (path.Join $source .)) -}}
+  {{- $asset.Publish -}}
+{{- end -}}
+{{- $entry := resources.FromString (path.Join $target "index.html") (readFile (path.Join $source "index.html")) -}}
+
+<iframe
+  src="{{ $entry.RelPermalink }}"
+  title="Interactive MR volume"
+  loading="lazy"
+  style="display:block;width:100%;height:840px;border:0">
+</iframe>
+<script>
+  (() => {
+    const frame = document.currentScript.previousElementSibling;
+    frame.addEventListener("load", () => {
+      const viewer = frame.contentDocument.querySelector("main");
+      if (!viewer) return;
+      frame.contentDocument.documentElement.classList.add("embedded");
+      const fit = () => {
+        frame.style.height = Math.ceil(viewer.getBoundingClientRect().height) + "px";
+      };
+      new ResizeObserver(fit).observe(viewer);
+      fit();
+    });
+  })();
+</script>
+{{- else -}}
+<p>The interactive viewer is available after preparing the sample volume locally.</p>
+{{- end -}}

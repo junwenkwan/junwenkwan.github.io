@@ -1,0 +1,5 @@
+{{- $image := resources.Get (.Get "src") -}}
+<figure class="align-center">
+  <img src="{{ $image.RelPermalink }}#center" alt="{{ .Get "alt" }}" width="{{ $image.Width }}" height="{{ $image.Height }}" style="height: auto" loading="lazy">
+  <figcaption><p>{{ .Get "caption" }}</p></figcaption>
+</figure>

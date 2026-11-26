@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MR volume</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./node_modules/three/build/three.module.js",
+        "three/addons/": "./node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="./viewer.js"></script>
+</head>
+<body>
+  <main aria-label="MR volume">
+    <div class="layout">
+      <section class="panel volume-panel" aria-label="Interactive volume">
+        <div class="panel-heading">
+          <h2>3D view</h2>
+          <button id="reset" type="button" disabled>Reset view</button>
+        </div>
+        <div id="viewport">
+          <p id="status" role="status">Loading volume…</p>
+        </div>
+        <p class="interaction">Drag to orbit · Scroll or pinch to zoom</p>
+      </section>
+
+      <aside class="panel render-panel" aria-label="Display settings">
+        <h2>Rendering</h2>
+        <fieldset id="controls" disabled>
+          <label class="field" for="white-point">
+            <span>White point <output id="white-point-value"></output></span>
+            <input id="white-point" type="range" min="0.85" max="1.25" step="0.01" value="1.05">
+          </label>
+          <label class="field" for="density">
+            <span>Volume density <output id="density-value"></output></span>
+            <input id="density" type="range" min="0.2" max="1.15" step="0.01" value="0.72">
+          </label>
+        </fieldset>
+        <dl class="scan-details">
+          <div><dt>Acquired pixel spacing</dt><dd id="pixels">—</dd></div>
+        </dl>
+      </aside>
+    </div>
+
+    <section class="slice-section" aria-labelledby="slice-title">
+      <div class="section-heading">
+        <h2 id="slice-title">Linked slices</h2>
+        <p>Click a point or move a slider to update the crosshairs.</p>
+      </div>
+      <div class="slice-grid">
+        <article class="panel slice-card" data-plane="axial">
+          <header><h3>Axial</h3><output for="axial-position"></output></header>
+          <div class="slice-stage"><canvas aria-label="Axial MR slice"></canvas></div>
+          <input id="axial-position" type="range" min="0" aria-label="Axial slice" disabled>
+        </article>
+        <article class="panel slice-card" data-plane="coronal">
+          <header><h3>Coronal</h3><output for="coronal-position"></output></header>
+          <div class="slice-stage"><canvas aria-label="Coronal MR slice"></canvas></div>
+          <input id="coronal-position" type="range" min="0" aria-label="Coronal slice" disabled>
+        </article>
+        <article class="panel slice-card" data-plane="sagittal">
+          <header><h3>Sagittal</h3><output for="sagittal-position"></output></header>
+          <div class="slice-stage"><canvas aria-label="Sagittal MR slice"></canvas></div>
+          <input id="sagittal-position" type="range" min="0" aria-label="Sagittal slice" disabled>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

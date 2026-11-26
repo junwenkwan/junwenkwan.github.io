@@ -1,0 +1,191 @@
+:root {
+  color-scheme: dark;
+  --background: #070c13;
+  --panel: #0d1620;
+  --well: #050a10;
+  --border: #243b4a;
+  --text: #ecf7fa;
+  --muted: #a5b8c7;
+  --accent: #66d5ed;
+  --axial: #b5a5fd;
+  --coronal: #66d5ed;
+  --sagittal: #e5b776;
+  --mono: ui-monospace, "Liberation Mono", monospace;
+  font-family: system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: radial-gradient(ellipse at 24% 0%, #111f2d 0%, var(--background) 46%);
+  min-height: 100vh;
+}
+
+main {
+  width: min(100%, 1420px);
+  margin: 0 auto;
+  padding: 28px clamp(17px, 3vw, 40px) 32px;
+}
+
+h2, h3, p, dl, dd { margin: 0; }
+h2, h3 { font-size: 0.93rem; font-weight: 650; }
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 25px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 265px;
+  gap: 14px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.panel-heading {
+  min-height: 42px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#reset { margin-left: auto; }
+
+#viewport {
+  position: relative;
+  height: clamp(330px, 49vh, 580px);
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 46%, #142e3d 0%, #091522 56%, #04080e 100%);
+}
+
+#viewport canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+#viewport canvas:active { cursor: grabbing; }
+
+#status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+#status[hidden] { display: none; }
+
+.interaction {
+  border-top: 1px solid var(--border);
+  padding: 8px 12px;
+  font: 0.72rem / 1.2 var(--mono);
+  color: var(--muted);
+}
+
+.render-panel { align-self: start; padding: 14px; }
+.render-panel h2 { margin-bottom: 12px; }
+fieldset { display: grid; gap: 15px; min-width: 0; border: 0; padding: 0; margin: 0; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.field { display: grid; gap: 8px; font-size: 0.83rem; }
+.field span, .scan-details div { display: flex; justify-content: space-between; gap: 8px; }
+output, .scan-details dd { font: 0.72rem / 1.35 var(--mono); }
+.field output { color: var(--accent); }
+
+button {
+  color: var(--text);
+  background: #132330;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: inherit;
+  font-size: 0.76rem;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: default; }
+input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
+.section-heading p { color: var(--muted); font-size: 0.76rem; line-height: 1.45; }
+
+.scan-details {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.74rem;
+}
+
+.scan-details dt { color: var(--muted); }
+.scan-details dd { white-space: nowrap; }
+.slice-section { margin-top: 18px; }
+.section-heading { margin-bottom: 8px; }
+
+.slice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.slice-card[data-plane="axial"] { --plane: var(--axial); }
+.slice-card[data-plane="coronal"] { --plane: var(--coronal); }
+.slice-card[data-plane="sagittal"] { --plane: var(--sagittal); }
+
+.slice-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 11px;
+}
+
+.slice-card h3 { color: var(--plane); font-size: 0.78rem; }
+.slice-card output { color: var(--muted); }
+
+.slice-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(125px, 16vh, 190px);
+  overflow: hidden;
+  background: var(--well);
+}
+
+.slice-stage canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  cursor: crosshair;
+}
+
+.slice-card input {
+  width: calc(100% - 22px);
+  margin: 7px 11px 9px;
+  accent-color: var(--plane);
+}
+
+@media (max-width: 780px) {
+  .layout { grid-template-columns: 1fr; }
+  #viewport { height: clamp(330px, 53vh, 520px); }
+}
+
+@media (max-width: 480px) {
+  .slice-grid { grid-template-columns: 1fr; }
+  .slice-stage { height: 168px; }
+}
+
+.embedded main { padding: 16px 12px; }
+.embedded #viewport { height: clamp(330px, 55vw, 440px); }
