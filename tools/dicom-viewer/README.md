@@ -6,8 +6,8 @@ To enable the interactive viewer in a local draft build, run these commands from
 
 ```bash
 npm ci --prefix tools/dicom-viewer
-uv run tools/dicom-viewer/export_volume.py /path/to/IMG-0001-00001.dcm --output tools/dicom-viewer
+uv run tools/dicom-viewer/export_volume.py /path/to/IMG-0001-00001.dcm --output assets/dicom-volume
 hugo server --buildDrafts --renderToMemory
 ```
 
-Keep the DICOM file and generated volume files local. The draft renders its static frame grid on a clean checkout.
+Hugo loads the generated `volume.bin` and `volume.json` from `assets/dicom-volume`. Keep those files and the DICOM file local. The draft renders its static frame grid on a clean checkout.

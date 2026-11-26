@@ -1,22 +1,24 @@
 {{- $source := "tools/dicom-viewer" -}}
 {{- $target := "dicom-volume" -}}
+{{- $volume := resources.Get (path.Join $target "volume.bin") -}}
+{{- $metadata := resources.Get (path.Join $target "volume.json") -}}
 {{- $files := slice
   "style.css"
   "viewer.js"
   "slices.js"
   "volume-shader.js"
-  "volume.json"
-  "volume.bin"
   "node_modules/three/build/three.module.js"
   "node_modules/three/build/three.core.js"
   "node_modules/three/examples/jsm/controls/OrbitControls.js"
   "node_modules/three/LICENSE"
 -}}
-{{- $ready := fileExists (path.Join $source "index.html") -}}
+{{- $ready := and $volume $metadata (fileExists (path.Join $source "index.html")) -}}
 {{- range $files -}}
   {{- $ready = and $ready (fileExists (path.Join $source .)) -}}
 {{- end -}}
 {{- if $ready -}}
+{{- $volume.Publish -}}
+{{- $metadata.Publish -}}
 {{- range $files -}}
   {{- $asset := resources.FromString (path.Join $target .) (readFile (path.Join $source .)) -}}
   {{- $asset.Publish -}}
