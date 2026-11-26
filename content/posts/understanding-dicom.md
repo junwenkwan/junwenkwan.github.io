@@ -1,6 +1,6 @@
 +++
 date = '2026-11-26'
-draft = true
+draft = false
 title = 'Understanding DICOM'
 tags = ['python']
 hideAuthor = true
@@ -99,4 +99,4 @@ The final Three.js view pairs a rotatable volume with linked axial, coronal, and
 
 The axial view steps through the acquired images. The coronal view takes the same row from each image, and the sagittal view takes the same column. The crosshairs show where the three planes intersect, so a point in one view is easy to locate in the others.
 
-{{< dicom-viewer >}}
+{{< dicom-embed >}}
