@@ -5,9 +5,15 @@ const planes = {
 };
 const axisColours = ["#e5b776", "#66d5ed", "#b5a5fd"];
 
+function scaleIndex(index, fromLength, toLength) {
+  if (fromLength === 1) return Math.floor(toLength / 2);
+  return Math.round(index * (toLength - 1) / (fromLength - 1));
+}
+
 export function createSliceViews(voxels, metadata) {
   const { size, spacingMm } = metadata;
-  const index = size.map(length => Math.floor(length / 2));
+  const sliceCounts = size.map(length => Math.min(length, size[2]));
+  const selection = sliceCounts.map(count => Math.floor(count / 2));
   const stride = [1, size[0], size[0] * size[1]];
   let whitePoint = 1;
 
@@ -30,20 +36,22 @@ export function createSliceViews(voxels, metadata) {
     const source = buffer.getContext("2d");
     const image = source.createImageData(columns, rows);
     const context = canvas.getContext("2d");
-    slider.max = size[axis] - 1;
+    slider.max = sliceCounts[axis] - 1;
     slider.disabled = false;
 
     slider.addEventListener("input", () => {
-      index[axis] = Number(slider.value);
+      selection[axis] = Number(slider.value);
       draw();
     });
     canvas.addEventListener("click", event => {
       const rect = canvas.getBoundingClientRect();
       const column = Math.floor((event.clientX - rect.left) * columns / rect.width);
       const row = Math.floor((event.clientY - rect.top) * rows / rect.height);
-      index[horizontal] = Math.max(0, Math.min(columns - 1, column));
+      const horizontalIndex = Math.max(0, Math.min(columns - 1, column));
       const verticalIndex = flip ? rows - 1 - row : row;
-      index[vertical] = Math.max(0, Math.min(rows - 1, verticalIndex));
+      const clampedVertical = Math.max(0, Math.min(rows - 1, verticalIndex));
+      selection[horizontal] = scaleIndex(horizontalIndex, columns, sliceCounts[horizontal]);
+      selection[vertical] = scaleIndex(clampedVertical, rows, sliceCounts[vertical]);
       draw();
     });
 
@@ -51,6 +59,7 @@ export function createSliceViews(voxels, metadata) {
   });
 
   function draw() {
+    const index = selection.map((choice, axis) => scaleIndex(choice, sliceCounts[axis], size[axis]));
     for (const view of views) {
       const { axis, horizontal, vertical, flip, canvas, slider, readout, buffer, image, source, context } = view;
       const { width: columns, height: rows } = buffer;
@@ -83,8 +92,8 @@ export function createSliceViews(voxels, metadata) {
       context.moveTo(0, y);
       context.lineTo(canvas.width, y);
       context.stroke();
-      slider.value = index[axis];
-      readout.value = `${index[axis] + 1} / ${size[axis]}`;
+      slider.value = selection[axis];
+      readout.value = `${selection[axis] + 1} / ${sliceCounts[axis]}`;
     }
   }
 
