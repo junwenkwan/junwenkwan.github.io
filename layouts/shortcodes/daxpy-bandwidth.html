@@ -1,0 +1,24 @@
+{{- $scale := .Get "scale" -}}
+<table class="daxpy-bandwidth">
+  <caption>Effective bandwidth in GB/s (bars use a shared 0–{{ $scale }} scale)</caption>
+  <thead>
+    <tr>
+      <th scope="col">Elements</th>
+      <th scope="col">CPU loop</th>
+      <th scope="col">GPU stdpar</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{- range .Page.Params.bandwidth }}
+    <tr>
+      <th scope="row">{{ .size }}</th>
+      {{- range slice .cpu .gpu }}
+      <td>
+        {{ printf "%.1f" . }}
+        <meter min="0" max="{{ $scale }}" value="{{ . }}" aria-hidden="true"></meter>
+      </td>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </tbody>
+</table>

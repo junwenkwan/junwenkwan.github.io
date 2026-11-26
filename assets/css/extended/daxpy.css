@@ -1,0 +1,179 @@
+.post-single:has(.daxpy-flow) .post-title {
+  text-wrap: balance;
+}
+
+.post-content .daxpy-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  list-style: none;
+  margin: 28px 0;
+  padding: 0;
+}
+
+.post-content .daxpy-flow li {
+  position: relative;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  background: var(--entry);
+}
+
+.post-content .daxpy-flow li:last-child {
+  border-color: var(--accent);
+}
+
+.post-content .daxpy-flow li + li::before {
+  content: '';
+  position: absolute;
+  inset-inline-end: 100%;
+  inset-block-start: 50%;
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.post-content .daxpy-flow li + li::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: calc(100% + 3px);
+  inset-block-start: calc(50% - 3px);
+  width: 7px;
+  height: 7px;
+  border-block-start: 1px solid var(--accent);
+  border-inline-end: 1px solid var(--accent);
+  transform: rotate(45deg);
+}
+
+.post-content .daxpy-flow strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.post-content .daxpy-flow code {
+  display: block;
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 12px;
+}
+
+.post-content .code-details {
+  border: 1px solid var(--border);
+  background: var(--entry);
+}
+
+.post-content .code-details summary {
+  padding: 11px 16px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.post-content .code-details .highlight {
+  margin: 0;
+}
+
+.post-content .code-details .copy-code,
+.post-single:has(.daxpy-flow) .highlight:focus-within .copy-code {
+  display: block;
+}
+
+.post-single:has(.daxpy-flow) .highlight code.language-diff {
+  padding: 0;
+}
+
+.post-content .daxpy-bandwidth {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.post-single .post-content table.daxpy-bandwidth :is(th, td) {
+  padding: 10px 8px;
+  min-width: 0;
+}
+
+.daxpy-bandwidth thead th:first-child {
+  width: max(82px, 20%);
+}
+
+.daxpy-bandwidth caption {
+  padding: 0 8px 6px;
+  color: var(--secondary);
+  font-size: 14px;
+  text-align: start;
+}
+
+.daxpy-bandwidth td {
+  font-variant-numeric: tabular-nums;
+}
+
+.daxpy-bandwidth meter {
+  display: block;
+  width: 100%;
+  height: 8px;
+  margin-top: 4px;
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: var(--entry);
+  color: var(--secondary);
+}
+
+.daxpy-bandwidth td:last-child meter {
+  color: var(--accent);
+}
+
+.daxpy-bandwidth meter::-webkit-meter-bar {
+  border: 0;
+  border-radius: 0;
+  background: var(--entry);
+}
+
+.daxpy-bandwidth meter::-webkit-meter-optimum-value {
+  border-radius: 0;
+  background: currentColor;
+}
+
+.daxpy-bandwidth meter::-moz-meter-bar {
+  background: currentColor;
+}
+
+@media (max-width: 720px) {
+  .post-content .daxpy-flow {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .post-content .daxpy-flow li + li::before {
+    inset-inline-end: auto;
+    inset-inline-start: 24px;
+    inset-block-start: -22px;
+    width: 1px;
+    height: 22px;
+  }
+
+  .post-content .daxpy-flow li + li::after {
+    inset-inline-end: auto;
+    inset-inline-start: 21px;
+    inset-block-start: -10px;
+    transform: rotate(135deg);
+  }
+}
+
+@media (max-width: 520px) {
+  .post-single:has(.daxpy-flow) .post-header {
+    margin-top: 8px;
+  }
+
+  .post-single:has(.daxpy-flow) .post-title {
+    font-size: 27px;
+  }
+
+  .post-single:has(.daxpy-flow) .highlight code.language-diff {
+    font-size: 12px;
+  }
+}

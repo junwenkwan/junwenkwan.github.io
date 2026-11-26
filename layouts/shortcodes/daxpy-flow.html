@@ -1,0 +1,15 @@
+<ol class="daxpy-flow" role="list" aria-label="DAXPY implementation stages">
+  <li>
+    <strong>CPU loop</strong>
+    <code>y[i] += a * x[i]</code>
+  </li>
+  <li>
+    <strong>Sequential algorithm</strong>
+    <code>transform(seq)</code>
+  </li>
+  <li>
+    <strong>GPU offload</strong>
+    <code>transform(par_unseq)</code>
+    <code>nvc++ -stdpar=gpu</code>
+  </li>
+</ol>

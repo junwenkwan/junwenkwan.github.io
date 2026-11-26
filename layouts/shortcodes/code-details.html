@@ -1,0 +1,4 @@
+<details class="code-details">
+  <summary>{{ .Get 0 }}</summary>
+  {{ .Inner | .Page.RenderString (dict "display" "block") }}
+</details>
