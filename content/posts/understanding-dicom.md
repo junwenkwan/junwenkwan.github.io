@@ -2,7 +2,7 @@
 date = '2026-11-26'
 draft = false
 title = 'Understanding DICOM'
-tags = ['python']
+tags = ['python', 'medical-imaging']
 hideAuthor = true
 ShowCodeCopyButtons = true
 +++
@@ -100,3 +100,15 @@ The final Three.js view pairs a rotatable volume with linked axial, coronal, and
 The axial view steps through the acquired images. The coronal view takes the same row from each image, and the sagittal view takes the same column. The crosshairs show where the three planes intersect, so a point in one view is easy to locate in the others.
 
 {{< dicom-embed >}}
+
+## More DICOM attributes
+
+| DICOM attribute | Value | Meaning |
+| --- | --- | --- |
+| `MRAcquisitionType` | 2D | The scan was acquired as individual slices. |
+| `BitsStored` | 12 bits | Source pixel precision before scaling to an 8-bit display volume. |
+| `BitsAllocated` | 16 bits | Storage reserved for each pixel value. |
+| `RepetitionTime` | 3960 ms | Time between sequence repetitions, shared across frames. |
+| `EffectiveEchoTime` | 86.0 ms | Effective echo time recorded for the first frame. |
+| `SliceThickness` | 5 mm | Nominal thickness of each slice. |
+| `SpacingBetweenSlices` | 7 mm | Distance between neighbouring slice centres. |
