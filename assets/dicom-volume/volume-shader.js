@@ -23,7 +23,7 @@ export const fragmentShader = `
   in vec3 towardCamera;
   out vec4 colour;
 
-  const int maxSteps = 180;
+  const int maxSteps = 384;
 
   float sampleVolume(vec3 point) {
     return texture(voxels, point / (2.0 * halfSize) + 0.5).r;

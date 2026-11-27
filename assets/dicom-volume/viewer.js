@@ -3,6 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createSliceViews } from "./slices.js";
 import { vertexShader, fragmentShader } from "./volume-shader.js";
 
+const settledStepMm = 0.9;
 const viewport = document.querySelector("#viewport");
 const status = document.querySelector("#status");
 const form = document.querySelector("#controls");
@@ -37,7 +38,7 @@ function createVolume(voxels, { size, spacingMm }) {
     halfSize: { value: extent.clone().multiplyScalar(0.5) },
     whitePoint: { value: 1 },
     density: { value: 1 },
-    stepSize: { value: 1.8 },
+    stepSize: { value: settledStepMm },
   };
   const material = new THREE.ShaderMaterial({
     uniforms,
@@ -120,7 +121,7 @@ function openViewer(voxels, metadata) {
   controls.addEventListener("change", requestRender);
   controls.addEventListener("start", () => { uniforms.stepSize.value = 3.5; });
   controls.addEventListener("end", () => {
-    uniforms.stepSize.value = 1.8;
+    uniforms.stepSize.value = settledStepMm;
     requestRender();
   });
   form.addEventListener("input", updateDisplay);
