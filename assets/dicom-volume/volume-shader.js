@@ -23,8 +23,6 @@ export const fragmentShader = `
   in vec3 towardCamera;
   out vec4 colour;
 
-  const vec3 ice = vec3(0.21, 0.65, 0.83);
-  const vec3 bright = vec3(0.91, 0.99, 1.0);
   const int maxSteps = 180;
 
   float sampleVolume(vec3 point) {
@@ -56,9 +54,9 @@ export const fragmentShader = `
       // Accumulate light front to back with opacity measured per millimetre.
       float signal = pow(smoothstep(0.13, 1.0, intensity), 2.1);
       float opacity = 1.0 - exp(-signal * density * distancePerStep * 0.15);
-      vec3 tint = mix(ice, bright, pow(intensity, 2.5));
+      float brightness = mix(0.68, 1.0, pow(intensity, 2.5));
       float amount = opacity * (1.0 - accumulated.a);
-      accumulated.rgb += amount * tint;
+      accumulated.rgb += vec3(amount * brightness);
       accumulated.a += amount;
       if (accumulated.a > 0.99) break;
       point -= view * distancePerStep;

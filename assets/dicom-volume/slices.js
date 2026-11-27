@@ -3,7 +3,6 @@ const planes = {
   coronal: { axis: 1, horizontal: 0, vertical: 2, flip: true },
   sagittal: { axis: 0, horizontal: 1, vertical: 2, flip: true },
 };
-const axisColours = ["#e5b776", "#66d5ed", "#b5a5fd"];
 
 function scaleIndex(index, fromLength, toLength) {
   if (fromLength === 1) return Math.floor(toLength / 2);
@@ -82,13 +81,10 @@ export function createSliceViews(voxels, metadata) {
       const verticalCentre = (index[vertical] + 0.5) / rows;
       const y = (flip ? 1 - verticalCentre : verticalCentre) * canvas.height;
       context.lineWidth = 1.5;
-      context.strokeStyle = axisColours[horizontal];
+      context.strokeStyle = "rgb(255 255 255 / 60%)";
       context.beginPath();
       context.moveTo(x, 0);
       context.lineTo(x, canvas.height);
-      context.stroke();
-      context.strokeStyle = axisColours[vertical];
-      context.beginPath();
       context.moveTo(0, y);
       context.lineTo(canvas.width, y);
       context.stroke();

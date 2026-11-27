@@ -58,7 +58,7 @@ function openViewer(voxels, metadata) {
   const radius = extent.length() / 2;
   scene.add(mesh);
 
-  const floor = new THREE.GridHelper(Math.max(extent.x, extent.y) * 1.08, 12, 0x3e7591, 0x29516a);
+  const floor = new THREE.GridHelper(Math.max(extent.x, extent.y) * 1.08, 12, 0x969696, 0x676767);
   floor.rotation.x = Math.PI / 2;
   floor.position.z = -extent.z / 2 - 5;
   floor.material.transparent = true;
