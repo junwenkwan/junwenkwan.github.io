@@ -2,19 +2,26 @@
 date = '2025-06-04'
 draft = false
 title = 'Model Context Protocol'
-tags = ['llm', 'machine learning']
+tags = ['python']
+hideAuthor = true
+ShowCodeCopyButtons = true
 +++
 
-Model Context Protocol (MCP) is an open source standard for LLMs to be interacting with applications. MCP is originally introduced by Anthropic [in this post](https://www.anthropic.com/news/model-context-protocol). With MCP, LLMs now can have assess to custom tools or data source to provide a more intelligent response. 
+Model Context Protocol (MCP) is an open standard for connecting LLM applications to tools and data sources. An assistant can use it to look up a dataset or query an API while answering a question. Anthropic introduced the protocol in its [November 2024 announcement](https://www.anthropic.com/news/model-context-protocol).
 
-In addition, MCP also allows developers to build agents capable of more tasks, such as searching the internet or exploring dataset. MCP essentially standardizes LLM applications to work with many toolings. A nice quote by an Anthropic developer, "the models are only as good as the context provided to them".
+## How MCP fits together
 
-In MCP architecture, there are several components involved, such as:
-- MCP Host: LLM applications to access data through MCP, such as Claude Desktop
-- MCP Clients: Inside a host, always maintain a 1:1 connection with MCP servers
-- MCP Servers: Lightweight programs to expose capabilities
+- The **MCP host** is the application where the conversation happens.
+- An **MCP client** runs inside the host and communicates with one MCP server. It discovers the server’s tools and sends requests to call them.
+- An **MCP server** exposes capabilities such as tools, resources, and prompts, as described in the [MCP architecture overview](https://modelcontextprotocol.io/docs/learn/architecture).
 
-![MCP Architecture](/mcp_architecture.svg?v=2)
+![An MCP host contains a separate client for each connected server](/mcp_architecture.svg?v=2)
+
+## What an MCP server exposes
+
+- **Resources** are data the client can read by URI. A file, an API response, or a reference guide can all be exposed as [MCP resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources).
+- **Tools** are functions the model can ask the host to run. The host can ask the user for approval before sending a [tool call](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
+- **Prompts** are reusable message templates for tasks a user wants to run. The client can fill in arguments when it retrieves an [MCP prompt](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts).
 
 In this example, I will use Github Copilot as the host, and I will connect the host to my own MCP server. I will also create a MCP server with `FastMCP` which is the Python MCP SDK. Remember, the client's job is to discover custom tools, while the server's job is to expose relevant tools to the client. With this Python MCP SDK, it is easy to define a MCP tool, please see code snippet below.
 
