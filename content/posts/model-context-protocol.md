@@ -11,7 +11,7 @@ Model Context Protocol (MCP) is an open standard for connecting LLM applications
 
 ## How MCP fits together
 
-- The **MCP host** is the application where the conversation happens.
+- The **MCP host** is the application where the conversation happens. This example uses Codex CLI.
 - An **MCP client** runs inside the host and communicates with one MCP server. It discovers the server’s tools and sends requests to call them.
 - An **MCP server** exposes capabilities such as tools, resources, and prompts, as described in the [MCP architecture overview](https://modelcontextprotocol.io/docs/learn/architecture).
 
@@ -23,87 +23,146 @@ Model Context Protocol (MCP) is an open standard for connecting LLM applications
 - **Tools** are functions the model can ask the host to run. The host can ask the user for approval before sending a [tool call](https://modelcontextprotocol.io/specification/2026-07-28/server/tools).
 - **Prompts** are reusable message templates for tasks a user wants to run. The client can fill in arguments when it retrieves an [MCP prompt](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts).
 
-In this example, I will use Github Copilot as the host, and I will connect the host to my own MCP server. I will also create a MCP server with `FastMCP` which is the Python MCP SDK. Remember, the client's job is to discover custom tools, while the server's job is to expose relevant tools to the client. With this Python MCP SDK, it is easy to define a MCP tool, please see code snippet below.
+## A first tool
+
+The `@mcp.tool()` decorator exposes a Python function to the host. Its parameter names, type hints, and docstring are used to generate a tool definition in the [MCP Python SDK](https://py.sdk.modelcontextprotocol.io/v2/).
 
 ```python
+from mcp.server import MCPServer
+
+mcp = MCPServer("Example")
+
 @mcp.tool()
 def add(a: int, b: int) -> int:
-    """
-    Args:
-        a: 1st num to add
-        b: 2nd num to add
-    Returns:
-        The sum of a and b
-    """
+    """Add two integers."""
     return a + b
 ```
 
-Let's now look at a more complicated example. I will allow Github Copilot agent to query and format the data obtained from National Oceanic and Atmospheric Administration (NOAA) to get the latest Aurora Kp index.
+## Compare aurora forecasts for two sites
+
+The original example fetched the latest Kp estimate from NOAA. The example adds a comparison of the forecast at two locations.
+
+- `get_aurora_status` returns the latest estimate of global geomagnetic activity and its timestamp from [NOAA’s Planetary K-index feed](https://www.spaceweather.gov/products/planetary-k-index).
+- `compare_aurora_sites` takes a list of places with coordinates and reads the nearest cell for each one from the same snapshot of [NOAA’s OVATION forecast grid](https://www.spaceweather.gov/products/aurora-30-minute-forecast).
+
+The `aurora://forecast-guide` resource explains what the forecast values mean. The `aurora_report` prompt takes two sites and asks for a report using the guide and both tools.
+
+Save the server as `aurora_server.py`. The site comparison validates each location and returns its readings as [structured tool results](https://py.sdk.modelcontextprotocol.io/v2/servers/structured-output/).
 
 ```python
-async def fetch_kp_index() -> dict | None:
-    """
-    Fetch the latest kp index from NOAA.
-    Returns:
-        A json containing kp index.
-    """
-    headers = {
-        "User-Agent": "AuroraMCP/1.0",
-        "Accept": "application/geo+json"
-    }
-    url = "https://services.swpc.noaa.gov/json/planetary_k_index_1m.json"
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(url,
-                                        headers=headers,
-                                        timeout=30.0)
-            response.raise_for_status()
-            return response.json()[-2:]
-        except Exception:
-            return None
+from datetime import UTC, datetime
+from typing import Annotated, Any, TypedDict
 
-def format_kp_index(feature: dict) -> str:
-    """
-    Format aurora kp index into a readable string.
-    Args:
-        feature: JSON containing Aurora kp index.
-    Returns:
-        Formatted string.
-    """
-    return f"""previous_time_tag: {feature[-2].get('time_tag', 'Unknown')}
-previous_kp_index: {feature[-2].get('kp_index', 'Unknown')}
-previous_estimated_kp: {feature[-2].get('estimated_kp', 'Unknown')}
-previous_kp: {feature[-2].get('kp', 'Unknown')}
-current_time_tag: {feature[-1].get('time_tag', 'Unknown')}
-current_kp_index: {feature[-1].get('kp_index', 'Unknown')}
-current_estimated_kp: {feature[-1].get('estimated_kp', 'Unknown')}
-current_kp: {feature[-1].get('kp', 'Unknown')}"""
-```
+import httpx
+from mcp.server import MCPServer
+from pydantic import Field
 
-And then the tool can be wrapped with the `@mcp.tool()` decorator.
+mcp = MCPServer("Aurora")
+NOAA_URL = "https://services.swpc.noaa.gov/json/"
+OVATION_FILE = "ovation_aurora_latest.json"
 
-```python
+
+Site = TypedDict(
+    "Site",
+    {
+        "name": Annotated[str, Field(min_length=1)],
+        "latitude": Annotated[float, Field(ge=-90, le=90)],
+        "longitude": Annotated[float, Field(ge=-180, le=180)],
+    },
+)
+
+
+async def fetch_noaa_json(filename: str):
+    async with httpx.AsyncClient(base_url=NOAA_URL, timeout=10.0) as client:
+        response = await client.get(filename)
+        response.raise_for_status()
+        return response.json()
+
+
 @mcp.tool()
-async def get_aurora_status() -> str:
-    """
-    A MCP tool to get current aurora Kp index.
-    Returns:
-        Formatted string.
-    """
-    kp = await fetch_kp_index()
-    if kp is None:
-        return "Unable to fetch Kp index."
+async def get_aurora_status() -> dict[str, Any]:
+    """Get the latest NOAA planetary Kp estimate and its UTC timestamp."""
+    readings = await fetch_noaa_json("planetary_k_index_1m.json")
+    available = [row for row in readings if row.get("estimated_kp") is not None]
+    if not available:
+        raise ValueError("NOAA returned no Kp estimates.")
+    latest = max(available, key=lambda row: row["time_tag"])
+    estimated_kp = float(latest["estimated_kp"])
+    if not 0 <= estimated_kp <= 9:
+        raise ValueError("NOAA returned a Kp estimate outside the 0–9 range.")
+    # NOAA's Kp feed gives UTC as a timestamp without an offset.
+    time_utc = datetime.fromisoformat(latest["time_tag"]).replace(tzinfo=UTC)
+    return {"estimated_kp": estimated_kp, "time_utc": time_utc.isoformat()}
 
-    return format_kp_index(kp)
-```
 
-The MCP server can be started using the following code snippet.
+@mcp.tool()
+async def compare_aurora_sites(
+    sites: Annotated[list[Site], Field(min_length=2, max_length=5)],
+) -> dict[str, Any]:
+    """Compare NOAA OVATION grid values at two to five sites."""
+    forecast = await fetch_noaa_json(OVATION_FILE)
+    grid = {(lon, lat): value for lon, lat, value in forecast["coordinates"]}
+    comparison = []
+    for site in sites:
+        # The grid has 1-degree cells and uses longitude from 0 to 359.
+        lon = round(site["longitude"]) % 360
+        lat = round(site["latitude"])
+        comparison.append(
+            {
+                "name": site["name"],
+                "grid_latitude": lat,
+                "grid_longitude": lon,
+                "aurora_value": grid.get((lon, lat)),
+            }
+        )
+    forecast_utc = datetime.fromisoformat(forecast["Forecast Time"])
+    return {"forecast_utc": forecast_utc.isoformat(), "sites": comparison}
 
-```python
+
+@mcp.resource("aurora://forecast-guide", mime_type="text/plain")
+def forecast_guide() -> str:
+    """Explain the values returned by the aurora tools."""
+    return (
+        "Kp estimates global geomagnetic activity.\n"
+        "An OVATION value applies to a sampled grid cell at the forecast time.\n"
+        "A missing grid cell is reported as null.\n"
+        "Darkness, clouds, and the view toward the horizon affect visibility."
+    )
+
+
+@mcp.prompt()
+def aurora_report(first_site: str, second_site: str) -> str:
+    """Prepare a comparison for two sites supplied with coordinates."""
+    return (
+        "Read aurora://forecast-guide and use the aurora tools to compare "
+        f"{first_site} and {second_site}. Give the latest estimated Kp and its "
+        "timestamp, then put each site’s OVATION grid value in a table with "
+        "the forecast time in UTC. Say if either source is unavailable."
+    )
+
+
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    mcp.run(transport="stdio")
 ```
 
-Finally, the GitHub Copilot agent can then discover this tool and get the latest Aurora Kp index from NOAA!
+## Try it in Codex
 
-![MCP Copilot](/mcp_copilot.png)
+Download [aurora-requirements.txt](/code/model-context-protocol/aurora-requirements.txt) and save it beside `aurora_server.py` in a Git checkout. Run the command from that directory.
+
+```bash
+codex exec --ephemeral \
+  -c 'mcp_servers.aurora.command="uv"' \
+  -c 'mcp_servers.aurora.args=["run","-p","3.12","--no-project","--with-requirements=aurora-requirements.txt","aurora_server.py"]' \
+  'Read aurora://forecast-guide and compare Hobart (-42.88, 147.33) and Queenstown, NZ (-45.03, 168.66). Show the Kp estimate and forecast values with UTC times.'
+```
+
+Clients that support MCP prompts can load `aurora_report` with `first_site` and `second_site`.
+
+The server rounds each site’s coordinates to the nearest point in NOAA’s forecast grid.
+
+| Site | Sampled grid cell |
+| --- | --- |
+| Hobart | 43° S, 147° E |
+| Queenstown, NZ | 45° S, 169° E |
+
+Codex puts the latest Kp estimate and its timestamp alongside the forecast time and grid value for each site. The server returns `null` when a cell is missing. Darkness, cloud cover, and the view toward the horizon also affect visibility, as explained in [NOAA’s guide to viewing the aurora](https://www.swpc.noaa.gov/content/tips-viewing-aurora).
