@@ -1,3 +1,7 @@
 mcp==2.3.0
 httpx
 pydantic
+cartopy==0.26.0
+matplotlib==3.11.2
+pyshp==3.1.9
+shapely

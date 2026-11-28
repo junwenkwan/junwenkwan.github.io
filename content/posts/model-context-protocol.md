@@ -40,26 +40,45 @@ def add(a: int, b: int) -> int:
 
 ## Compare aurora forecasts for two sites
 
-The original example fetched the latest Kp estimate from NOAA. The example adds a comparison of the forecast at two locations.
+The original example fetched the latest Kp estimate from NOAA. The server now supports a site comparison and a regional forecast map.
 
 - `get_aurora_status` returns the latest estimate of global geomagnetic activity and its timestamp from [NOAA’s Planetary K-index feed](https://www.spaceweather.gov/products/planetary-k-index).
 - `compare_aurora_sites` takes a list of places with coordinates and reads the nearest cell for each one from the same snapshot of [NOAA’s OVATION forecast grid](https://www.spaceweather.gov/products/aurora-30-minute-forecast).
+- `get_aurora_map` fetches one OVATION forecast and renders the Southern Ocean overlay in the same call. It returns the PNG, its local file path, and the forecast time.
 
 The `aurora://forecast-guide` resource explains what the forecast values mean. The `aurora_report` prompt takes two sites and asks for a report using the guide and both tools.
 
 Save the server as `aurora_server.py`. The site comparison validates each location and returns its readings as [structured tool results](https://py.sdk.modelcontextprotocol.io/v2/servers/structured-output/).
 
 ```python
+from asyncio import to_thread
+from base64 import b64encode
 from datetime import UTC, datetime
+from functools import lru_cache
+from io import BytesIO
+from math import nan
+from tempfile import NamedTemporaryFile
+from threading import Lock
 from typing import Annotated, Any, TypedDict
+from urllib.request import urlopen
+from zipfile import ZipFile
 
+import cartopy.crs as ccrs
 import httpx
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.figure import Figure
 from mcp.server import MCPServer
+from mcp.types import CallToolResult, ImageContent, TextContent
 from pydantic import Field
+import shapefile
+from shapely.geometry import shape
 
 mcp = MCPServer("Aurora")
 NOAA_URL = "https://services.swpc.noaa.gov/json/"
 OVATION_FILE = "ovation_aurora_latest.json"
+LAND_URL = "https://naturalearth.s3.amazonaws.com/50m_physical/ne_50m_land.zip"
+plot_lock = Lock()
 
 
 Site = TypedDict(
@@ -119,6 +138,103 @@ async def compare_aurora_sites(
     return {"forecast_utc": forecast_utc.isoformat(), "sites": comparison}
 
 
+@lru_cache(maxsize=1)
+def load_land():
+    """Download the Natural Earth land polygons once per server process."""
+    with urlopen(LAND_URL, timeout=20) as response:
+        with ZipFile(BytesIO(response.read())) as archive:
+            with shapefile.Reader(shp=BytesIO(archive.read("ne_50m_land.shp"))) as coast:
+                return [
+                    shape(item.__geo_interface__)
+                    for item in coast.shapes(bbox=(77, -81, 180, -17))
+                ]
+
+
+def render_aurora_map(forecast: dict[str, Any]) -> bytes:
+    """Draw the Southern Ocean portion of one NOAA forecast snapshot."""
+    grid = {
+        (lon, lat): value for lon, lat, value in forecast["coordinates"]
+        if 77 <= lon <= 180 and -81 <= lat <= -17
+    }
+    longitudes = sorted({lon for lon, lat in grid})
+    latitudes = sorted({lat for lon, lat in grid})
+    if len(longitudes) < 2 or len(latitudes) < 2:
+        raise ValueError("NOAA returned too few forecast points for the Southern Ocean map.")
+    # Keep the raster on the native one-degree grid, including missing samples.
+    longitudes = range(longitudes[0], longitudes[-1] + 1)
+    latitudes = range(latitudes[0], latitudes[-1] + 1)
+    values = [[grid.get((lon, lat), nan) for lon in longitudes] for lat in latitudes]
+
+    # Keep Matplotlib rendering serial when clients call the tool concurrently.
+    with plot_lock:
+        geographic = ccrs.PlateCarree()
+        projection = ccrs.PlateCarree(central_longitude=132)
+        ink, muted = "#f0e7d5", "#b1b9a6"
+        fig = Figure(figsize=(9.6, 6.15), facecolor="#0f1513")
+        FigureCanvasAgg(fig)
+        ax = fig.add_axes((0.04, 0.15, 0.92, 0.82), projection=projection, facecolor="#131e20")
+        ax.set_extent((85, 179, -73, -18), crs=geographic)
+        ax.add_geometries(load_land(), geographic, facecolor="#2c342b",
+                          edgecolor="#76806c", linewidth=0.65)
+        ax.spines["geo"].set_edgecolor("#606b58")
+        ax.gridlines(xlocs=range(90, 180, 10), ylocs=range(-70, -10, 10),
+                     color=muted, alpha=0.25, linewidth=0.65, linestyle=":")
+
+        palette = LinearSegmentedColormap.from_list(
+            "ovation",
+            [(0.0, "#166c4800"), (0.03, "#26b45d65"), (0.08, "#31d970c9"),
+             (0.14, "#68f58bf0"), (0.22, "#a1ffa0"), (0.38, "#d6ed76"),
+             (0.6, "#efbc57"), (1.0, "#ef885e")],
+            N=1024,
+        )
+        # The raster edges lie half a degree beyond the sampled grid points.
+        west, south = projection.transform_point(longitudes[0] - 0.5, latitudes[0] - 0.5, geographic)
+        east, north = projection.transform_point(longitudes[-1] + 0.5, latitudes[-1] + 0.5, geographic)
+        layer = ax.imshow(
+            values, extent=(west, east, south, north), origin="lower", aspect=1.13,
+            interpolation="bicubic", interpolation_stage="data",
+            cmap=palette, vmin=0, vmax=100, zorder=2,
+        )
+
+        for name, lon, lat in [
+            ("AUSTRALIA", 134.5, -30.6),
+            ("Hobart", 147.33, -44.4),
+            ("Queenstown, NZ", 167.8, -47.3),
+        ]:
+            ax.text(lon, lat, name, color=ink, fontsize=11, ha="center",
+                    transform=geographic, zorder=4)
+        ax.text(
+            128, -49, "Southern Ocean", color=ink, fontsize=15, style="italic",
+            ha="center", transform=geographic, zorder=4,
+        )
+
+        key = fig.add_axes((0.20, 0.094, 0.60, 0.019), facecolor=fig.get_facecolor())
+        colorbar = fig.colorbar(layer, cax=key, orientation="horizontal",
+                                ticks=[0, 10, 20, 40, 60, 100])
+        colorbar.set_label("NOAA OVATION forecast value", color=ink, fontsize=11)
+        key.tick_params(labelcolor=muted, color=muted, labelsize=10, length=3)
+        colorbar.outline.set_edgecolor("#606b58")
+        buffer = BytesIO()
+        fig.savefig(buffer, format="png", dpi=144, pil_kwargs={"optimize": True})
+    return buffer.getvalue()
+
+
+@mcp.tool()
+async def get_aurora_map() -> CallToolResult:
+    """Render the latest NOAA Southern Ocean aurora forecast and return a PNG."""
+    forecast = await fetch_noaa_json(OVATION_FILE)
+    forecast_utc = datetime.fromisoformat(forecast["Forecast Time"]).isoformat()
+    png = await to_thread(render_aurora_map, forecast)
+
+    with NamedTemporaryFile(prefix="aurora-forecast-", suffix=".png", delete=False) as file:
+        file.write(png)
+
+    return CallToolResult(content=[
+        ImageContent(type="image", data=b64encode(png).decode("ascii"), mime_type="image/png"),
+        TextContent(type="text", text=f"NOAA forecast valid {forecast_utc}. PNG: {file.name}"),
+    ])
+
+
 @mcp.resource("aurora://forecast-guide", mime_type="text/plain")
 def forecast_guide() -> str:
     """Explain the values returned by the aurora tools."""
@@ -153,12 +269,16 @@ Download [aurora-requirements.txt](/code/model-context-protocol/aurora-requireme
 codex exec --ephemeral \
   -c 'mcp_servers.aurora.command="uv"' \
   -c 'mcp_servers.aurora.args=["run","-p","3.12","--no-project","--with-requirements=aurora-requirements.txt","aurora_server.py"]' \
-  'Read aurora://forecast-guide and compare Hobart (-42.88, 147.33) and Queenstown, NZ (-45.03, 168.66). Show the Kp estimate and forecast values with UTC times.'
+  'Call get_aurora_map and show the forecast time and PNG path.'
 ```
 
-Clients that support MCP prompts can load `aurora_report` with `first_site` and `second_site`.
+For a site comparison, use the following prompt as the final argument instead. Clients that support MCP prompts can load `aurora_report` with `first_site` and `second_site`.
 
-The server rounds each site’s coordinates to the nearest point in NOAA’s forecast grid.
+> Read `aurora://forecast-guide` and use the aurora tools to compare Hobart (−42.88, 147.33) and Queenstown, NZ (−45.03, 168.66). Give the latest estimated Kp and its timestamp, then put each site’s OVATION grid value in a table with the forecast time in UTC. Say if either source is unavailable.
+
+The server rounds each site’s coordinates to the nearest point in NOAA’s forecast grid. The overlay shows how the forecast values vary across the region south of Australia and New Zealand.
+
+{{< asset-figure src="images/model-context-protocol/aurora-grid.png" alt="A green band of NOAA forecast activity extends across the Southern Ocean, south of Hobart and Queenstown." caption="NOAA OVATION forecast for the Southern Hemisphere, valid 28 November 2026 at 06:59 UTC." >}}
 
 | Site | Sampled grid cell |
 | --- | --- |
